@@ -1,0 +1,58 @@
+# given: connected undirected graph
+# n nodes, labeled 1 to n
+# list of edges, each element contains the connected nodes
+
+# example
+# [[1,2],[1,3],[3,4],[2,4]] -> [2,4]
+# [[1,2],[1,3],[1,4],[3,4],[4,5]] -> [3,4]
+
+# questions
+# will we ever need to remove more than 1 edge? -> No
+# will we see repeat edges? -> No
+
+# approach
+# cycle detection
+# 
+
+class Solution:
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        n = len(edges)
+        adj = [[] for _ in range(n+1)]
+
+        for u, v in edges:
+            adj[u].append(v)
+            adj[v].append(u)
+        
+        visit = [False] * (n+1)
+
+        cycle = set()
+        cycleStart = -1
+
+        def dfs(node, parent):
+            nonlocal cycleStart
+            if visit[node]:
+                cycleStart = node
+                return True
+            
+            visit[node] = True
+            for neighbor in adj[node]:
+                if neighbor == parent:
+                    continue
+                if dfs(neighbor, node):
+                    if cycleStart != -1:
+                        cycle.add(node)
+                    if node == cycleStart:
+                        cycleStart = -1
+                    return True
+            
+            return False
+        
+        dfs(1, -1)
+
+        for u, v in reversed(edges):
+            if u in cycle and v in cycle:
+                return [u,v]
+        
+        return []
+
+        
